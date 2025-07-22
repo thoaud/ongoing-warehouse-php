@@ -1,0 +1,943 @@
+<?php
+/**
+ * GetOrderModelConsignee
+ *
+ * PHP version 7.4
+ *
+ * @category Class
+ * @package  OngoingAPI
+ * @author   OpenAPI Generator team
+ * @link     https://openapi-generator.tech
+ */
+
+/**
+ * Ongoing WMS Goods Owner REST API
+ *
+ * Welcome to the documentation for Ongoing WMS Goods Owner REST API. [Ongoing WMS](https://www.ongoingwarehouse.com) is a cloud-based Warehouse Management System.  This API is intended to be used by people who wish to integrate systems such as a web shops or ERPs (Enterprise Resource Planning systems) with our WMS.  Please note that we have two other APIs as well:  * [Goods Owner SOAP API](https://developer.ongoingwarehouse.com/). The SOAP API fills a similar role as the REST API, but allows for more fine-grained control over Ongoing WMS than the REST API. * [Automation API](https://developer.ongoingwarehouse.com/automation-api). This API is intended to be used for integrations with automation equipment such as conveyor belts.  If you are unsure about whether you should use the REST API or the SOAP API, [please click here](https://developer.ongoingwarehouse.com/soap-vs-rest) to read our comparison between the two APIs.  If you have any questions, please send us an email at [contact@ongoingwarehouse.com](mailto:contact@ongoingwarehouse.com).  # REST API  [REST](https://en.wikipedia.org/wiki/Representational_state_transfer), or `Representational state transfer`, is a software architectural style used for creating Application Programming Interfaces (APIs). Our API tries to follow best practices for REST.  # How to use the API  On a basic level, the API consists of JSON requests and JSON replies being sent over HTTPS. To make it easier to use our API, we provide an [OpenAPI specification file](openapi.json) (formerly known as a Swagger specification file). Using this file you can use tools such as [Swagger CodeGen](https://swagger.io/tools/swagger-codegen/) or [NSwag](https://github.com/RicoSuter/NSwag) to automatically generate client code which lets you access the API.  ## Example C# integration  [Click here](https://github.com/OngoingWarehouse/Ongoing-Warehouse-REST-API-DotNet-Examples) to see an  example integration written in C#. We used NSwag to generate a client for accessing the API, and then used the client to make various requests.  ## Example requests and responses  [Click here](https://github.com/OngoingWarehouse/Ongoing-Warehouse-REST-API-Example-Requests) to see examples of what the requests and responses look like. The aforementioned link also contains a Postman collection of requests.  ## PUT and POST  Some of our requests support PUT and some support POST. The difference between them is: * If you make a PUT request, then the resource will either be created (if it does not already exist), or updated (if it already exists). * If you make a POST request, a new resource will always be created.  As an example, to create a new order, you make a PUT request with a new order number. If you wish to update the same order, you make another PUT request (with the same order number).  # Credentials  To integrate with our WMS, you will need the following:  1. A user name. 2. A password. 3. A goods owner ID.  Please ask the warehouse administrator for this information. [We have written a guide](https://docs.ongoingwarehouse.com/manuals/api-access) which shows how they can find it.  ## API URL  Every Ongoing WMS has its own unique URL for the API endpoint. The base API URL for a production system looks like this:  ``` API URL: https://api.ongoingsystems.se/{warehouse}/api/v1/ ```  Ask your contact person at the warehouse to specify what  ```{warehouse}``` should be in your particular case. ```{warehouse}``` can be taken from the  same URL which they use to login to the system:  ``` Login URL: https://{warehouse}.ongoingsystems.se/{warehouse} ```  ### API URL for demo system  If you have a demo system, then the API URL is slightly different. It takes the following form::  ``` API URL: https://wms1.ongoingsystems.se/{warehouse}/api/v1/ ```   # Authentication  The API uses [HTTP Basic Authentication](https://en.wikipedia.org/wiki/Basic_access_authentication).  Each request to the API must have a header called `Authorization`, which in turn must contain Base64-encoded information about your username and password, like so:  ``` Authorization: Basic QWxhZGRpbjpPcGVuU2VzYW1l ```  If the framework which you are using does not take care of this automatically, you will need to generate the header yourself. Take your username and password, and put them together in a new string with a colon between them. Then encode the result using [Base64](https://en.wikipedia.org/wiki/Base64). In pseudo code, it looks like this:  ``` var userNameAndPassword = Base64Encode(userName + \":\" + passWord); var authenticationHeader = \"Basic \" + userNameAndPassword; ```  # Security  All requests to the API must be encrypted, that is, sent using `https`.  # Content types  The API only accepts [JSON](https://en.wikipedia.org/wiki/JSON). All responses are also made as JSON.  # Time zones  ## Response  In the API responses, all times are given as UTC, like so:  ```     \"createdDate\": \"2019-04-09T10:39:31.3Z\" ```  ## Request  When you send in times in API requests, we strongly recommend that it is sent as UTC and that you specify the UTC time zone.  For instance, say that you want to know which orders the warehouse has shipped after 08:00 UTC on April 9, 2019. The date should be written like this:  ``` 2019-04-09T08:00:00.000+00:00 ```  Then it should be URL encoded:  ``` 2019-04-09T08%3A00%3A00.000%2B00%3A00 ```  Thus resulting in a request URL like this:  ``` GET api/v1/orders?goodsOwnerId=114&shippedTimeFrom=2019-04-09T08%3A00%3A00.000%2B00%3A00 ```  # Pagination  When you read data from the API, the API by default responds with all objects which match your filter. If there are too many objects which match your filter, this may cause timeouts. For instance, if the goods owner has 100 000 articles and you try to fetch them all with GetInventoryByQuery at the same time, you will most likely encounter a timeout.  We recommend that you paginate the responses for every API function which supports it. [Click here to read more about how pagination is handled in our API.](https://developer.ongoingwarehouse.com/paginating-responses)  # Entities  ## Goods owner  The clients of a warehouse are called goods owners. In other words, a goods owner is company which has hired a certain warehouse to deal with its warehousing needs. Each goods owner has a unique ID (an integer).  ## Article  An article is a stock-keeping unit (SKU). That is, articles are the things which a goods owner keeps at a warehouse. Each article needs a unique article number.  ### Stock balances  By making a GET request to the /articles endpoint, you will receive information about the inventory state for each article, in the section called `inventoryInfo`. The field called `sellableNumberOfItems` contains the number of items which can still be sold. If you create an order for an item, then the sellable number of items will be decreased accordingly. The field called `numberOfItems` contains the number of items which are physically present in the warehouse. If you are interested in more details, please see [this article](https://developer.ongoingwarehouse.com/inventory).  ## Article items  An article item represents part of the stock balance for a particular article. For instance, if the warehouse keeps the same article in two different locations, then the article will have at least two article items. For more information, [see this article](https://docs.ongoingwarehouse.com/manuals/batch-and-serial-numbers/).  By fetching all article items, you can see very detailed information about what is in stock. For instance, you can see exactly which batch numbers are in stock.  ## Order  An order is used to instruct the warehouse to ship articles to a specific customer. Each order needs a unique order number. You may not have two different orders with the same order number.  You may not update or cancel an order after the warehouse has started working on it.  ### Order lines  An order can have several order lines. For each order line, you must specify a unique number in the field `rowNumber`. If your system does not have a unique reference for each order line, you can simply use `1, 2, 3`, etc. as row numbers instead.  ### Transporter  It is possible to [set which transporter service should be used to ship an order](https://developer.ongoingwarehouse.com/transporters).  ## Purchase order  A purchase order is used to advise the warehouse of incoming deliveries. Each purchase order needs a unique purchase order number.  You may not update or cancel a purchase order after the warehouse has started working on it.  ### Purchase order lines  A purchase order can have several purchase order lines. For each purchase order line, you must specify a unique number in the field `rowNumber`. If your system does not have a unique reference for each purchase order line, you can simply use `1, 2, 3`, etc. as row numbers instead.  ## Return order  A return order is used to advise the warehouse that a customer intends to send back goods to the warehouse. Each return order refers to a particular order.  ## Warehouse  Each Ongoing WMS instance contains at least one warehouse.
+ *
+ * The version of the OpenAPI document: 1.0.0
+ * Contact: contact@ongoingwarehouse.com
+ * Generated by: https://openapi-generator.tech
+ * Generator version: 7.9.0
+ */
+
+/**
+ * NOTE: This class is auto generated by OpenAPI Generator (https://openapi-generator.tech).
+ * https://openapi-generator.tech
+ * Do not edit the class manually.
+ */
+
+namespace OngoingAPI\Model;
+
+use \ArrayAccess;
+use \OngoingAPI\ObjectSerializer;
+
+/**
+ * GetOrderModelConsignee Class Doc Comment
+ *
+ * @category Class
+ * @package  OngoingAPI
+ * @author   OpenAPI Generator team
+ * @link     https://openapi-generator.tech
+ * @implements \ArrayAccess<string, mixed>
+ */
+class GetOrderModelConsignee implements ModelInterface, ArrayAccess, \JsonSerializable
+{
+    public const DISCRIMINATOR = null;
+
+    /**
+      * The original name of the model.
+      *
+      * @var string
+      */
+    protected static $openAPIModelName = 'GetOrderModel_consignee';
+
+    /**
+      * Array of property to type mappings. Used for (de)serialization
+      *
+      * @var string[]
+      */
+    protected static $openAPITypes = [
+        'customer_number' => 'string',
+        'name' => 'string',
+        'address1' => 'string',
+        'address2' => 'string',
+        'address3' => 'string',
+        'post_code' => 'string',
+        'city' => 'string',
+        'country_code' => 'string',
+        'country_state_code' => 'string',
+        'remark' => 'string',
+        'door_code' => 'string',
+        'advanced' => '\OngoingAPI\Model\GetOrderConsigneeAdvanced',
+        'invoice_address' => '\OngoingAPI\Model\GetOrderConsigneeInvoiceAddress',
+        'id' => 'int'
+    ];
+
+    /**
+      * Array of property to format mappings. Used for (de)serialization
+      *
+      * @var string[]
+      * @phpstan-var array<string, string|null>
+      * @psalm-var array<string, string|null>
+      */
+    protected static $openAPIFormats = [
+        'customer_number' => null,
+        'name' => null,
+        'address1' => null,
+        'address2' => null,
+        'address3' => null,
+        'post_code' => null,
+        'city' => null,
+        'country_code' => null,
+        'country_state_code' => null,
+        'remark' => null,
+        'door_code' => null,
+        'advanced' => null,
+        'invoice_address' => null,
+        'id' => 'int32'
+    ];
+
+    /**
+      * Array of nullable properties. Used for (de)serialization
+      *
+      * @var boolean[]
+      */
+    protected static array $openAPINullables = [
+        'customer_number' => true,
+        'name' => true,
+        'address1' => true,
+        'address2' => true,
+        'address3' => true,
+        'post_code' => true,
+        'city' => true,
+        'country_code' => true,
+        'country_state_code' => true,
+        'remark' => true,
+        'door_code' => true,
+        'advanced' => true,
+        'invoice_address' => true,
+        'id' => false
+    ];
+
+    /**
+      * If a nullable field gets set to null, insert it here
+      *
+      * @var boolean[]
+      */
+    protected array $openAPINullablesSetToNull = [];
+
+    /**
+     * Array of property to type mappings. Used for (de)serialization
+     *
+     * @return array
+     */
+    public static function openAPITypes()
+    {
+        return self::$openAPITypes;
+    }
+
+    /**
+     * Array of property to format mappings. Used for (de)serialization
+     *
+     * @return array
+     */
+    public static function openAPIFormats()
+    {
+        return self::$openAPIFormats;
+    }
+
+    /**
+     * Array of nullable properties
+     *
+     * @return array
+     */
+    protected static function openAPINullables(): array
+    {
+        return self::$openAPINullables;
+    }
+
+    /**
+     * Array of nullable field names deliberately set to null
+     *
+     * @return boolean[]
+     */
+    private function getOpenAPINullablesSetToNull(): array
+    {
+        return $this->openAPINullablesSetToNull;
+    }
+
+    /**
+     * Setter - Array of nullable field names deliberately set to null
+     *
+     * @param boolean[] $openAPINullablesSetToNull
+     */
+    private function setOpenAPINullablesSetToNull(array $openAPINullablesSetToNull): void
+    {
+        $this->openAPINullablesSetToNull = $openAPINullablesSetToNull;
+    }
+
+    /**
+     * Checks if a property is nullable
+     *
+     * @param string $property
+     * @return bool
+     */
+    public static function isNullable(string $property): bool
+    {
+        return self::openAPINullables()[$property] ?? false;
+    }
+
+    /**
+     * Checks if a nullable property is set to null.
+     *
+     * @param string $property
+     * @return bool
+     */
+    public function isNullableSetToNull(string $property): bool
+    {
+        return in_array($property, $this->getOpenAPINullablesSetToNull(), true);
+    }
+
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @var string[]
+     */
+    protected static $attributeMap = [
+        'customer_number' => 'customerNumber',
+        'name' => 'name',
+        'address1' => 'address1',
+        'address2' => 'address2',
+        'address3' => 'address3',
+        'post_code' => 'postCode',
+        'city' => 'city',
+        'country_code' => 'countryCode',
+        'country_state_code' => 'countryStateCode',
+        'remark' => 'remark',
+        'door_code' => 'doorCode',
+        'advanced' => 'advanced',
+        'invoice_address' => 'invoiceAddress',
+        'id' => 'id'
+    ];
+
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @var string[]
+     */
+    protected static $setters = [
+        'customer_number' => 'setCustomerNumber',
+        'name' => 'setName',
+        'address1' => 'setAddress1',
+        'address2' => 'setAddress2',
+        'address3' => 'setAddress3',
+        'post_code' => 'setPostCode',
+        'city' => 'setCity',
+        'country_code' => 'setCountryCode',
+        'country_state_code' => 'setCountryStateCode',
+        'remark' => 'setRemark',
+        'door_code' => 'setDoorCode',
+        'advanced' => 'setAdvanced',
+        'invoice_address' => 'setInvoiceAddress',
+        'id' => 'setId'
+    ];
+
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @var string[]
+     */
+    protected static $getters = [
+        'customer_number' => 'getCustomerNumber',
+        'name' => 'getName',
+        'address1' => 'getAddress1',
+        'address2' => 'getAddress2',
+        'address3' => 'getAddress3',
+        'post_code' => 'getPostCode',
+        'city' => 'getCity',
+        'country_code' => 'getCountryCode',
+        'country_state_code' => 'getCountryStateCode',
+        'remark' => 'getRemark',
+        'door_code' => 'getDoorCode',
+        'advanced' => 'getAdvanced',
+        'invoice_address' => 'getInvoiceAddress',
+        'id' => 'getId'
+    ];
+
+    /**
+     * Array of attributes where the key is the local name,
+     * and the value is the original name
+     *
+     * @return array
+     */
+    public static function attributeMap()
+    {
+        return self::$attributeMap;
+    }
+
+    /**
+     * Array of attributes to setter functions (for deserialization of responses)
+     *
+     * @return array
+     */
+    public static function setters()
+    {
+        return self::$setters;
+    }
+
+    /**
+     * Array of attributes to getter functions (for serialization of requests)
+     *
+     * @return array
+     */
+    public static function getters()
+    {
+        return self::$getters;
+    }
+
+    /**
+     * The original name of the model.
+     *
+     * @return string
+     */
+    public function getModelName()
+    {
+        return self::$openAPIModelName;
+    }
+
+
+    /**
+     * Associative array for storing property values
+     *
+     * @var mixed[]
+     */
+    protected $container = [];
+
+    /**
+     * Constructor
+     *
+     * @param mixed[] $data Associated array of property values
+     *                      initializing the model
+     */
+    public function __construct(array $data = null)
+    {
+        $this->setIfExists('customer_number', $data ?? [], null);
+        $this->setIfExists('name', $data ?? [], null);
+        $this->setIfExists('address1', $data ?? [], null);
+        $this->setIfExists('address2', $data ?? [], null);
+        $this->setIfExists('address3', $data ?? [], null);
+        $this->setIfExists('post_code', $data ?? [], null);
+        $this->setIfExists('city', $data ?? [], null);
+        $this->setIfExists('country_code', $data ?? [], null);
+        $this->setIfExists('country_state_code', $data ?? [], null);
+        $this->setIfExists('remark', $data ?? [], null);
+        $this->setIfExists('door_code', $data ?? [], null);
+        $this->setIfExists('advanced', $data ?? [], null);
+        $this->setIfExists('invoice_address', $data ?? [], null);
+        $this->setIfExists('id', $data ?? [], null);
+    }
+
+    /**
+    * Sets $this->container[$variableName] to the given data or to the given default Value; if $variableName
+    * is nullable and its value is set to null in the $fields array, then mark it as "set to null" in the
+    * $this->openAPINullablesSetToNull array
+    *
+    * @param string $variableName
+    * @param array  $fields
+    * @param mixed  $defaultValue
+    */
+    private function setIfExists(string $variableName, array $fields, $defaultValue): void
+    {
+        if (self::isNullable($variableName) && array_key_exists($variableName, $fields) && is_null($fields[$variableName])) {
+            $this->openAPINullablesSetToNull[] = $variableName;
+        }
+
+        $this->container[$variableName] = $fields[$variableName] ?? $defaultValue;
+    }
+
+    /**
+     * Show all the invalid properties with reasons.
+     *
+     * @return array invalid properties with reasons
+     */
+    public function listInvalidProperties()
+    {
+        $invalidProperties = [];
+
+        return $invalidProperties;
+    }
+
+    /**
+     * Validate all the properties in the model
+     * return true if all passed
+     *
+     * @return bool True if all properties are valid
+     */
+    public function valid()
+    {
+        return count($this->listInvalidProperties()) === 0;
+    }
+
+
+    /**
+     * Gets customer_number
+     *
+     * @return string|null
+     */
+    public function getCustomerNumber()
+    {
+        return $this->container['customer_number'];
+    }
+
+    /**
+     * Sets customer_number
+     *
+     * @param string|null $customer_number customer_number
+     *
+     * @return self
+     */
+    public function setCustomerNumber($customer_number)
+    {
+        if (is_null($customer_number)) {
+            array_push($this->openAPINullablesSetToNull, 'customer_number');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('customer_number', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['customer_number'] = $customer_number;
+
+        return $this;
+    }
+
+    /**
+     * Gets name
+     *
+     * @return string|null
+     */
+    public function getName()
+    {
+        return $this->container['name'];
+    }
+
+    /**
+     * Sets name
+     *
+     * @param string|null $name name
+     *
+     * @return self
+     */
+    public function setName($name)
+    {
+        if (is_null($name)) {
+            array_push($this->openAPINullablesSetToNull, 'name');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('name', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['name'] = $name;
+
+        return $this;
+    }
+
+    /**
+     * Gets address1
+     *
+     * @return string|null
+     */
+    public function getAddress1()
+    {
+        return $this->container['address1'];
+    }
+
+    /**
+     * Sets address1
+     *
+     * @param string|null $address1 address1
+     *
+     * @return self
+     */
+    public function setAddress1($address1)
+    {
+        if (is_null($address1)) {
+            array_push($this->openAPINullablesSetToNull, 'address1');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('address1', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['address1'] = $address1;
+
+        return $this;
+    }
+
+    /**
+     * Gets address2
+     *
+     * @return string|null
+     */
+    public function getAddress2()
+    {
+        return $this->container['address2'];
+    }
+
+    /**
+     * Sets address2
+     *
+     * @param string|null $address2 address2
+     *
+     * @return self
+     */
+    public function setAddress2($address2)
+    {
+        if (is_null($address2)) {
+            array_push($this->openAPINullablesSetToNull, 'address2');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('address2', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['address2'] = $address2;
+
+        return $this;
+    }
+
+    /**
+     * Gets address3
+     *
+     * @return string|null
+     */
+    public function getAddress3()
+    {
+        return $this->container['address3'];
+    }
+
+    /**
+     * Sets address3
+     *
+     * @param string|null $address3 address3
+     *
+     * @return self
+     */
+    public function setAddress3($address3)
+    {
+        if (is_null($address3)) {
+            array_push($this->openAPINullablesSetToNull, 'address3');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('address3', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['address3'] = $address3;
+
+        return $this;
+    }
+
+    /**
+     * Gets post_code
+     *
+     * @return string|null
+     */
+    public function getPostCode()
+    {
+        return $this->container['post_code'];
+    }
+
+    /**
+     * Sets post_code
+     *
+     * @param string|null $post_code post_code
+     *
+     * @return self
+     */
+    public function setPostCode($post_code)
+    {
+        if (is_null($post_code)) {
+            array_push($this->openAPINullablesSetToNull, 'post_code');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('post_code', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['post_code'] = $post_code;
+
+        return $this;
+    }
+
+    /**
+     * Gets city
+     *
+     * @return string|null
+     */
+    public function getCity()
+    {
+        return $this->container['city'];
+    }
+
+    /**
+     * Sets city
+     *
+     * @param string|null $city city
+     *
+     * @return self
+     */
+    public function setCity($city)
+    {
+        if (is_null($city)) {
+            array_push($this->openAPINullablesSetToNull, 'city');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('city', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['city'] = $city;
+
+        return $this;
+    }
+
+    /**
+     * Gets country_code
+     *
+     * @return string|null
+     */
+    public function getCountryCode()
+    {
+        return $this->container['country_code'];
+    }
+
+    /**
+     * Sets country_code
+     *
+     * @param string|null $country_code country_code
+     *
+     * @return self
+     */
+    public function setCountryCode($country_code)
+    {
+        if (is_null($country_code)) {
+            array_push($this->openAPINullablesSetToNull, 'country_code');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('country_code', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['country_code'] = $country_code;
+
+        return $this;
+    }
+
+    /**
+     * Gets country_state_code
+     *
+     * @return string|null
+     */
+    public function getCountryStateCode()
+    {
+        return $this->container['country_state_code'];
+    }
+
+    /**
+     * Sets country_state_code
+     *
+     * @param string|null $country_state_code country_state_code
+     *
+     * @return self
+     */
+    public function setCountryStateCode($country_state_code)
+    {
+        if (is_null($country_state_code)) {
+            array_push($this->openAPINullablesSetToNull, 'country_state_code');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('country_state_code', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['country_state_code'] = $country_state_code;
+
+        return $this;
+    }
+
+    /**
+     * Gets remark
+     *
+     * @return string|null
+     */
+    public function getRemark()
+    {
+        return $this->container['remark'];
+    }
+
+    /**
+     * Sets remark
+     *
+     * @param string|null $remark remark
+     *
+     * @return self
+     */
+    public function setRemark($remark)
+    {
+        if (is_null($remark)) {
+            array_push($this->openAPINullablesSetToNull, 'remark');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('remark', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['remark'] = $remark;
+
+        return $this;
+    }
+
+    /**
+     * Gets door_code
+     *
+     * @return string|null
+     */
+    public function getDoorCode()
+    {
+        return $this->container['door_code'];
+    }
+
+    /**
+     * Sets door_code
+     *
+     * @param string|null $door_code door_code
+     *
+     * @return self
+     */
+    public function setDoorCode($door_code)
+    {
+        if (is_null($door_code)) {
+            array_push($this->openAPINullablesSetToNull, 'door_code');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('door_code', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['door_code'] = $door_code;
+
+        return $this;
+    }
+
+    /**
+     * Gets advanced
+     *
+     * @return \OngoingAPI\Model\GetOrderConsigneeAdvanced|null
+     */
+    public function getAdvanced()
+    {
+        return $this->container['advanced'];
+    }
+
+    /**
+     * Sets advanced
+     *
+     * @param \OngoingAPI\Model\GetOrderConsigneeAdvanced|null $advanced advanced
+     *
+     * @return self
+     */
+    public function setAdvanced($advanced)
+    {
+        if (is_null($advanced)) {
+            array_push($this->openAPINullablesSetToNull, 'advanced');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('advanced', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['advanced'] = $advanced;
+
+        return $this;
+    }
+
+    /**
+     * Gets invoice_address
+     *
+     * @return \OngoingAPI\Model\GetOrderConsigneeInvoiceAddress|null
+     */
+    public function getInvoiceAddress()
+    {
+        return $this->container['invoice_address'];
+    }
+
+    /**
+     * Sets invoice_address
+     *
+     * @param \OngoingAPI\Model\GetOrderConsigneeInvoiceAddress|null $invoice_address invoice_address
+     *
+     * @return self
+     */
+    public function setInvoiceAddress($invoice_address)
+    {
+        if (is_null($invoice_address)) {
+            array_push($this->openAPINullablesSetToNull, 'invoice_address');
+        } else {
+            $nullablesSetToNull = $this->getOpenAPINullablesSetToNull();
+            $index = array_search('invoice_address', $nullablesSetToNull);
+            if ($index !== FALSE) {
+                unset($nullablesSetToNull[$index]);
+                $this->setOpenAPINullablesSetToNull($nullablesSetToNull);
+            }
+        }
+        $this->container['invoice_address'] = $invoice_address;
+
+        return $this;
+    }
+
+    /**
+     * Gets id
+     *
+     * @return int|null
+     */
+    public function getId()
+    {
+        return $this->container['id'];
+    }
+
+    /**
+     * Sets id
+     *
+     * @param int|null $id id
+     *
+     * @return self
+     */
+    public function setId($id)
+    {
+        if (is_null($id)) {
+            throw new \InvalidArgumentException('non-nullable id cannot be null');
+        }
+        $this->container['id'] = $id;
+
+        return $this;
+    }
+    /**
+     * Returns true if offset exists. False otherwise.
+     *
+     * @param integer $offset Offset
+     *
+     * @return boolean
+     */
+    public function offsetExists($offset): bool
+    {
+        return isset($this->container[$offset]);
+    }
+
+    /**
+     * Gets offset.
+     *
+     * @param integer $offset Offset
+     *
+     * @return mixed|null
+     */
+    #[\ReturnTypeWillChange]
+    public function offsetGet($offset)
+    {
+        return $this->container[$offset] ?? null;
+    }
+
+    /**
+     * Sets value based on offset.
+     *
+     * @param int|null $offset Offset
+     * @param mixed    $value  Value to be set
+     *
+     * @return void
+     */
+    public function offsetSet($offset, $value): void
+    {
+        if (is_null($offset)) {
+            $this->container[] = $value;
+        } else {
+            $this->container[$offset] = $value;
+        }
+    }
+
+    /**
+     * Unsets offset.
+     *
+     * @param integer $offset Offset
+     *
+     * @return void
+     */
+    public function offsetUnset($offset): void
+    {
+        unset($this->container[$offset]);
+    }
+
+    /**
+     * Serializes the object to a value that can be serialized natively by json_encode().
+     * @link https://www.php.net/manual/en/jsonserializable.jsonserialize.php
+     *
+     * @return mixed Returns data which can be serialized by json_encode(), which is a value
+     * of any type other than a resource.
+     */
+    #[\ReturnTypeWillChange]
+    public function jsonSerialize()
+    {
+       return ObjectSerializer::sanitizeForSerialization($this);
+    }
+
+    /**
+     * Gets the string presentation of the object
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return json_encode(
+            ObjectSerializer::sanitizeForSerialization($this),
+            JSON_PRETTY_PRINT
+        );
+    }
+
+    /**
+     * Gets a header-safe presentation of the object
+     *
+     * @return string
+     */
+    public function toHeaderValue()
+    {
+        return json_encode(ObjectSerializer::sanitizeForSerialization($this));
+    }
+}
+
+

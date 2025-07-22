@@ -1,0 +1,19 @@
+parameters:
+    level: 8
+    paths:
+        - Api
+        - Model
+        - Configuration.php
+        - ApiException.php
+        - HeaderSelector.php
+        - ObjectSerializer.php
+    excludePaths:
+        - tests
+        - examples
+        - vendor
+    checkMissingIterableValueType: false
+    checkGenericClassInNonGenericObjectType: false
+    ignoreErrors:
+        - '#Call to an undefined method [a-zA-Z0-9\\_]+::[a-zA-Z0-9\\_]+\(\)#'
+        - '#Access to an undefined property [a-zA-Z0-9\\_]+::\$[a-zA-Z0-9\\_]+#'
+    tmpDir: .phpstan.cache 
