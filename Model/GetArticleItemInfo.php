@@ -389,9 +389,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
 
 
     /**
-     * Gets batch
+     * Gets the batch number for this article item.
      *
-     * @return string|null
+     * @return string|null The batch number
      */
     public function getBatch()
     {
@@ -423,9 +423,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets container
+     * Gets the container for this article item.
      *
-     * @return string|null
+     * @return string|null The container
      */
     public function getContainer()
     {
@@ -457,9 +457,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets expiry_date
+     * Gets the expiry date for this article item.
      *
-     * @return \DateTime|null
+     * @return \DateTime|null The expiry date
      */
     public function getExpiryDate()
     {
@@ -491,9 +491,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets is_locked
+     * Gets the lock status for this article item.
      *
-     * @return bool|null
+     * @return bool|null True if locked, false otherwise
      */
     public function getIsLocked()
     {
@@ -518,9 +518,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets is_locked_for_sale
+     * Gets the lock for sale status for this article item.
      *
-     * @return bool|null
+     * @return bool|null True if locked for sale, false otherwise
      */
     public function getIsLockedForSale()
     {
@@ -545,9 +545,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets location
+     * Gets the location for this article item.
      *
-     * @return string|null
+     * @return string|null The location
      */
     public function getLocation()
     {
@@ -579,9 +579,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets number_of_items
+     * Gets the number of items for this article item.
      *
-     * @return float|null
+     * @return float|null The number of items
      */
     public function getNumberOfItems()
     {
@@ -606,9 +606,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets serial
+     * Gets the serial number for this article item.
      *
-     * @return string|null
+     * @return string|null The serial number
      */
     public function getSerial()
     {
@@ -640,9 +640,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets status
+     * Gets the status object for this article item.
      *
-     * @return \OngoingAPI\Model\GetArticleItemInfoStatus|null
+     * @return \OngoingAPI\Model\GetArticleItemInfoStatus|null The status object
      */
     public function getStatus()
     {
@@ -674,9 +674,20 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets comment
+     * Gets the status code for this article item, if available.
      *
-     * @return string|null
+     * @return string|null The status code
+     */
+    public function getStatusCode()
+    {
+        $status = $this->getStatus();
+        return $status ? $status->getStatusCode() : null;
+    }
+
+    /**
+     * Gets the comment for this article item.
+     *
+     * @return string|null The comment
      */
     public function getComment()
     {
@@ -708,9 +719,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets warehouse
+     * Gets the warehouse object for this article item.
      *
-     * @return \OngoingAPI\Model\GetArticleItemInfoWarehouse|null
+     * @return \OngoingAPI\Model\GetArticleItemInfoWarehouse|null The warehouse object
      */
     public function getWarehouse()
     {
@@ -742,9 +753,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets in_date
+     * Gets the in date for this article item.
      *
-     * @return \DateTime|null
+     * @return \DateTime|null The in date
      */
     public function getInDate()
     {
@@ -769,9 +780,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets article_item_id
+     * Gets the article item ID for this article item.
      *
-     * @return int|null
+     * @return int|null The article item ID
      */
     public function getArticleItemId()
     {
@@ -796,9 +807,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets purchase_order_info
+     * Gets the purchase order info object for this article item.
      *
-     * @return \OngoingAPI\Model\GetArticleItemInfoPurchaseOrderInfo|null
+     * @return \OngoingAPI\Model\GetArticleItemInfoPurchaseOrderInfo|null The purchase order info object
      */
     public function getPurchaseOrderInfo()
     {
@@ -830,9 +841,9 @@ class GetArticleItemInfo implements ModelInterface, ArrayAccess, \JsonSerializab
     }
 
     /**
-     * Gets lock_causes
+     * Gets the lock causes object for this article item.
      *
-     * @return \OngoingAPI\Model\GetArticleItemInfoLockCauses|null
+     * @return \OngoingAPI\Model\GetArticleItemInfoLockCauses|null The lock causes object
      */
     public function getLockCauses()
     {

@@ -100,4 +100,25 @@ try {
     echo "Error getting order: " . $e->getMessage() . "\n";
 }
 
+try {
+    // Example 4: Get article items for a goods owner
+    echo "4. Getting article items...\n";
+    $articleItemsApi = new OngoingAPI\Api\ArticleItemsApi(null, $config);
+    
+    $response = $articleItemsApi->articleItemsGetArticleItemsModel($goodsOwnerId, null, null, 10); // Limit to 10 articles
+    
+    echo "Found " . count($response->getArticleItems()) . " article items:\n";
+    foreach ($response->getArticleItems() as $item) {
+        echo "  - ArticleItemId: " . $item->getArticleItemId() . "\n";
+        echo "    Batch: " . $item->getBatch() . "\n";
+        echo "    Serial: " . $item->getSerial() . "\n";
+        echo "    Status: " . $item->getStatusCode() . "\n";
+        echo "    Items: " . $item->getNumberOfItems() . "\n";
+        echo "\n";
+    }
+    
+} catch (Exception $e) {
+    echo "Error getting article items: " . $e->getMessage() . "\n";
+}
+
 echo "=== Example completed ===\n"; 

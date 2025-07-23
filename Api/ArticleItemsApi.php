@@ -127,25 +127,122 @@ class ArticleItemsApi
     }
 
     /**
-     * Operation articleItemsGetArticleItems
+     * Operation articleItemsGetArticleItemsModel
      *
      * Get all article items which match the specified search criteria.
+     * 
+     * This method returns a single GetArticleItemsModel object containing article items.
+     * For pagination, use the article_system_id_from parameter to get the next batch.
      *
-     * @param  int $goods_owner_id goods_owner_id (required)
+     * @param  int $goods_owner_id The goods owner ID (required)
      * @param  string $article_number Only return article items for this article number (only 1 article number may be specified). (optional)
-     * @param  int $article_system_id_from Only return articles whose article system ID is greater than or equal to this. (optional)
-     * @param  int $max_articles_to_get Maximum number of articles to return. (optional)
+     * @param  int $article_system_id_from Only return articles whose article system ID is greater than or equal to this. Use for pagination. (optional)
+     * @param  int $max_articles_to_get Maximum number of articles to return. Recommended: 100 for pagination. (optional)
      * @param  string[] $article_numbers Only return article items for these article numbers (several article numbers may be specified). (optional)
      * @param  string[] $location_names Only return article items which are at these locations (several location names may be specified). (optional)
      * @param  string[] $article_item_status_codes Only return article items which are assigned with these article item statuses (several article item status codes may be specified). (optional)
      * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['articleItemsGetArticleItems'] to see the possible values for this operation
      *
      * @throws \OngoingAPI\ApiException on non-2xx response or if the response body is not in the expected format
-     * @throws \InvalidArgumentException
-     * @return \OngoingAPI\Model\GetArticleItemsModel[]
+     * @throws \InvalidArgumentException when required parameters are missing or invalid
+     * @return \OngoingAPI\Model\GetArticleItemsModel A model containing article items and metadata
+     */
+    public function articleItemsGetArticleItemsModel($goods_owner_id, $article_number = null, $article_system_id_from = null, $max_articles_to_get = null, $article_numbers = null, $location_names = null, $article_item_status_codes = null, string $contentType = self::contentTypes['articleItemsGetArticleItems'][0])
+    {
+        list($response) = $this->articleItemsGetArticleItemsModelWithHttpInfo($goods_owner_id, $article_number, $article_system_id_from, $max_articles_to_get, $article_numbers, $location_names, $article_item_status_codes, $contentType);
+        return $response;
+    }
+
+    /**
+     * Operation articleItemsGetArticleItemsModelWithHttpInfo
+     *
+     * Get all article items which match the specified search criteria with HTTP response details.
+     * 
+     * This method returns a single GetArticleItemsModel object containing article items.
+     * For pagination, use the article_system_id_from parameter to get the next batch.
+     *
+     * @param  int $goods_owner_id The goods owner ID (required)
+     * @param  string $article_number Only return article items for this article number (only 1 article number may be specified). (optional)
+     * @param  int $article_system_id_from Only return articles whose article system ID is greater than or equal to this. Use for pagination. (optional)
+     * @param  int $max_articles_to_get Maximum number of articles to return. Recommended: 100 for pagination. (optional)
+     * @param  string[] $article_numbers Only return article items for these article numbers (several article numbers may be specified). (optional)
+     * @param  string[] $location_names Only return article items which are at these locations (several location names may be specified). (optional)
+     * @param  string[] $article_item_status_codes Only return article items which are assigned with these article item statuses (several article item status codes may be specified). (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['articleItemsGetArticleItems'] to see the possible values for this operation
+     *
+     * @throws \OngoingAPI\ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws \InvalidArgumentException when required parameters are missing or invalid
+     * @return array of \OngoingAPI\Model\GetArticleItemsModel, HTTP status code, HTTP response headers (array of strings)
+     */
+    public function articleItemsGetArticleItemsModelWithHttpInfo($goods_owner_id, $article_number = null, $article_system_id_from = null, $max_articles_to_get = null, $article_numbers = null, $location_names = null, $article_item_status_codes = null, string $contentType = self::contentTypes['articleItemsGetArticleItems'][0])
+    {
+        $request = $this->articleItemsGetArticleItemsRequest($goods_owner_id, $article_number, $article_system_id_from, $max_articles_to_get, $article_numbers, $location_names, $article_item_status_codes, $contentType);
+        try {
+            $options = $this->createHttpClientOption();
+            $response = $this->client->send($request, $options);
+            $statusCode = $response->getStatusCode();
+            if ($statusCode < 200 || $statusCode > 299) {
+                throw new ApiException(
+                    sprintf(
+                        '[%d] Error connecting to the API (%s). Response: %s',
+                        $statusCode,
+                        (string) $request->getUri(),
+                        (string) $response->getBody()
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    (string) $response->getBody()
+                );
+            }
+            $content = (string) $response->getBody();
+            try {
+                $content = json_decode($content, false, 512, JSON_THROW_ON_ERROR);
+            } catch (\JsonException $exception) {
+                throw new ApiException(
+                    sprintf(
+                        'Error JSON decoding server response (%s). Raw response: %s',
+                        $request->getUri(),
+                        $content
+                    ),
+                    $statusCode,
+                    $response->getHeaders(),
+                    $content
+                );
+            }
+            return [
+                ObjectSerializer::deserialize($content, '\\OngoingAPI\\Model\\GetArticleItemsModel', []),
+                $response->getStatusCode(),
+                $response->getHeaders()
+            ];
+        } catch (ApiException $e) {
+            throw $e;
+        }
+    }
+
+    /**
+     * @deprecated Use articleItemsGetArticleItemsModel instead. This method will be removed in a future version.
+     * 
+     * Get all article items which match the specified search criteria.
+     * 
+     * This method returns an array of GetArticleItemsModel objects (legacy behavior).
+     * For new code, use articleItemsGetArticleItemsModel which returns a single model.
+     *
+     * @param  int $goods_owner_id The goods owner ID (required)
+     * @param  string $article_number Only return article items for this article number (only 1 article number may be specified). (optional)
+     * @param  int $article_system_id_from Only return articles whose article system ID is greater than or equal to this. Use for pagination. (optional)
+     * @param  int $max_articles_to_get Maximum number of articles to return. Recommended: 100 for pagination. (optional)
+     * @param  string[] $article_numbers Only return article items for these article numbers (several article numbers may be specified). (optional)
+     * @param  string[] $location_names Only return article items which are at these locations (several location names may be specified). (optional)
+     * @param  string[] $article_item_status_codes Only return article items which are assigned with these article item statuses (several article item status codes may be specified). (optional)
+     * @param  string $contentType The value for the Content-Type header. Check self::contentTypes['articleItemsGetArticleItems'] to see the possible values for this operation
+     *
+     * @throws \OngoingAPI\ApiException on non-2xx response or if the response body is not in the expected format
+     * @throws \InvalidArgumentException when required parameters are missing or invalid
+     * @return \OngoingAPI\Model\GetArticleItemsModel[] Array of models (legacy behavior)
      */
     public function articleItemsGetArticleItems($goods_owner_id, $article_number = null, $article_system_id_from = null, $max_articles_to_get = null, $article_numbers = null, $location_names = null, $article_item_status_codes = null, string $contentType = self::contentTypes['articleItemsGetArticleItems'][0])
     {
+        trigger_error('articleItemsGetArticleItems is deprecated. Use articleItemsGetArticleItemsModel instead.', E_USER_DEPRECATED);
         list($response) = $this->articleItemsGetArticleItemsWithHttpInfo($goods_owner_id, $article_number, $article_system_id_from, $max_articles_to_get, $article_numbers, $location_names, $article_item_status_codes, $contentType);
         return $response;
     }

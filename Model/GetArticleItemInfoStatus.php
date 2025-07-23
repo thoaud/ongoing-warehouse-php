@@ -364,6 +364,16 @@ class GetArticleItemInfoStatus implements ModelInterface, ArrayAccess, \JsonSeri
 
         return $this;
     }
+
+    /**
+     * Gets the status code for this article item status.
+     *
+     * @return string|null The status code
+     */
+    public function getStatusCode()
+    {
+        return $this->getCode();
+    }
     /**
      * Returns true if offset exists. False otherwise.
      *

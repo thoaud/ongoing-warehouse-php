@@ -243,3 +243,32 @@ foreach ($configs as $environment => $config) {
 }
 
 echo "\n=== Advanced example completed ===\n"; 
+
+// Example 1b: Get article items for a goods owner (with pagination)
+echo "1b. Getting article items with pagination...\n";
+$articleItemsApi = new OngoingAPI\Api\ArticleItemsApi($httpClient, $config);
+try {
+    $maxArticlesToGet = 100;
+    $articleSystemIdFrom = null;
+    $allArticleItems = [];
+    do {
+        $response = $articleItemsApi->articleItemsGetArticleItemsModel(
+            $goodsOwnerId,
+            null, // article_number
+            $articleSystemIdFrom, // article_system_id_from
+            $maxArticlesToGet
+        );
+        foreach ($response->getArticleItems() as $item) {
+            echo "  - ArticleItemId: " . $item->getArticleItemId() . "\n";
+            echo "    Batch: " . $item->getBatch() . "\n";
+            echo "    Serial: " . $item->getSerial() . "\n";
+            echo "    Status code: " . $item->getStatusCode() . "\n";
+            // ... access other fields as needed ...
+            $allArticleItems[] = $item;
+        }
+        $articleSystemIdFrom = $response->getArticleSystemId() + 1;
+    } while (count($response->getArticleItems()) === $maxArticlesToGet);
+    echo "Total article items fetched: " . count($allArticleItems) . "\n";
+} catch (Exception $e) {
+    echo "Error getting article items: " . $e->getMessage() . "\n";
+} 

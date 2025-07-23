@@ -277,3 +277,103 @@ See [CHANGELOG.md](CHANGELOG.md) for a list of changes and version history.
 - [Ongoing Warehouse](https://www.ongoingwarehouse.com/) for providing the API
 - [OpenAPI Generator](https://openapi-generator.tech/) for generating the base client code
 - [Directhouse](https://directhouse.no) for development and maintenance 
+
+## Example: Get Article Items (with Pagination)
+
+```php
+<?php
+
+use OngoingAPI\Api\ArticleItemsApi;
+use OngoingAPI\Configuration;
+
+// Setup configuration
+$config = new Configuration();
+$config->setHost('https://api.ongoingsystems.se/your-warehouse');
+$config->setUsername('your-username');
+$config->setPassword('your-password');
+
+// Create API client
+$articleItemsApi = new ArticleItemsApi(null, $config);
+
+try {
+    // Get article items for a goods owner (with pagination)
+    $goodsOwnerId = 123; // Replace with your goods owner ID
+    $maxArticlesToGet = 100;
+    $articleSystemIdFrom = null;
+    $allArticleItems = [];
+    do {
+        $response = $articleItemsApi->articleItemsGetArticleItemsModel(
+            $goodsOwnerId,
+            null, // article_number
+            $articleSystemIdFrom, // article_system_id_from
+            $maxArticlesToGet
+        );
+        foreach ($response->getArticleItems() as $item) {
+            echo "ArticleItemId: " . $item->getArticleItemId() . "\n";
+            echo "Batch: " . $item->getBatch() . "\n";
+            echo "Serial: " . $item->getSerial() . "\n";
+            echo "Status code: " . $item->getStatusCode() . "\n";
+            // ... access other fields as needed ...
+            $allArticleItems[] = $item;
+        }
+        // Pagination: set articleSystemIdFrom to the last article system ID
+        $articleSystemIdFrom = $response->getArticleSystemId() + 1;
+    } while (count($response->getArticleItems()) === $maxArticlesToGet);
+    echo "Total article items fetched: " . count($allArticleItems) . "\n";
+} catch (Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}
+```
+
+### Migration from Legacy Method
+
+If you're using the legacy `articleItemsGetArticleItems()` method, you should migrate to the new `articleItemsGetArticleItemsModel()` method:
+
+```php
+// Old way (deprecated)
+$articleItems = $api->articleItemsGetArticleItems($goodsOwnerId);
+foreach ($articleItems as $articleModel) {
+    foreach ($articleModel->getItems() as $item) {
+        // Process item
+    }
+}
+
+// New way (recommended)
+$response = $api->articleItemsGetArticleItemsModel($goodsOwnerId);
+foreach ($response->getArticleItems() as $item) {
+    // Process item directly
+}
+```
+
+The new method provides better consistency and easier access to article items.
+
+## Error Handling and Debugging
+
+The API client provides comprehensive error handling with detailed exception messages:
+
+```php
+try {
+    $response = $articleItemsApi->articleItemsGetArticleItemsModel($goodsOwnerId);
+    // Process response
+} catch (\OngoingAPI\ApiException $e) {
+    echo "API Error: " . $e->getMessage() . "\n";
+    echo "Status Code: " . $e->getCode() . "\n";
+    echo "Response Body: " . $e->getResponseBody() . "\n";
+    echo "Response Headers: " . print_r($e->getResponseHeaders(), true) . "\n";
+} catch (\InvalidArgumentException $e) {
+    echo "Invalid Argument: " . $e->getMessage() . "\n";
+} catch (Exception $e) {
+    echo "Unexpected Error: " . $e->getMessage() . "\n";
+}
+```
+
+### Debug Mode
+
+Enable debug mode to log all HTTP requests and responses:
+
+```php
+$config->setDebug(true);
+$config->setDebugFile('/tmp/ongoing-api-debug.log');
+```
+
+This will help you troubleshoot API issues and understand the exact requests being made. 

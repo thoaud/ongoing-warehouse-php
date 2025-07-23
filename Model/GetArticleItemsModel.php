@@ -312,9 +312,9 @@ class GetArticleItemsModel implements ModelInterface, ArrayAccess, \JsonSerializ
 
 
     /**
-     * Gets article_system_id
+     * Gets the article system ID for this article.
      *
-     * @return int|null
+     * @return int|null The article system ID
      */
     public function getArticleSystemId()
     {
@@ -339,9 +339,9 @@ class GetArticleItemsModel implements ModelInterface, ArrayAccess, \JsonSerializ
     }
 
     /**
-     * Gets article_number
+     * Gets the article number for this article.
      *
-     * @return string|null
+     * @return string|null The article number
      */
     public function getArticleNumber()
     {
@@ -373,9 +373,9 @@ class GetArticleItemsModel implements ModelInterface, ArrayAccess, \JsonSerializ
     }
 
     /**
-     * Gets items
+     * Gets the array of article item info objects for this article.
      *
-     * @return \OngoingAPI\Model\GetArticleItemInfo[]|null
+     * @return \OngoingAPI\Model\GetArticleItemInfo[]|null Array of article item info objects
      */
     public function getItems()
     {
@@ -407,9 +407,19 @@ class GetArticleItemsModel implements ModelInterface, ArrayAccess, \JsonSerializ
     }
 
     /**
-     * Gets goods_owner
+     * Returns the article items for this model.
      *
-     * @return \OngoingAPI\Model\GetArticleItemsModelGoodsOwner|null
+     * @return \OngoingAPI\Model\GetArticleItemInfo[] Array of article item info objects
+     */
+    public function getArticleItems()
+    {
+        return $this->getItems();
+    }
+
+    /**
+     * Gets the goods owner info for this article.
+     *
+     * @return \OngoingAPI\Model\GetArticleItemsModelGoodsOwner|null The goods owner info object
      */
     public function getGoodsOwner()
     {
